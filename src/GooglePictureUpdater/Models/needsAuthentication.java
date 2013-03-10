@@ -7,6 +7,8 @@ import GooglePictureUpdater.Controllers.LoginController;
 
 public interface needsAuthentication {
 
+	public void requestAuthentication();
+	
 	public void authenticate(HashMap<String, String> credentials);
 	
 	public ArrayList<String> getRequiredCredentials();

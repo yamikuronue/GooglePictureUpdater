@@ -38,35 +38,5 @@ public class LoginView extends JFrame {
 		
 	}
 	
-	 /**
-	  * Instantiate the JavaFX Components in
-	  * the JavaFX Application Thread.
-	  * This approach doesn't give an easy way to detect redirects,
-	  * so for now, commenting it out.
-	  */
-	//WebView browser;
-	//WebEngine engine;
-	//JFXPanel panel;
-	
-	/*  private void loadJavaFXScene(){
-	    Platform.runLater(new Runnable() {
-	      @Override
-	      public void run() {
-	 
-	        BorderPane borderPane = new BorderPane();
-	        browser = new WebView();
-	        engine = browser.getEngine();
-	        
-	        engine.load(url);
-	 
-	        borderPane.setCenter(browser);
-	        Scene scene = new Scene(borderPane,450,450);
-	        panel.setScene(scene);
-	        panel.setVisible(true);
-	        System.out.print(engine.getDocument());
-	        
-	      }
-	    });
-	  } */
 
 }
