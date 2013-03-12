@@ -128,7 +128,6 @@ public class LoginController implements WebBrowserListener {
 		}
 		
 		//matcher for Google API
-		System.out.println("Testing for google api");
 		responsePattern = Pattern.compile("<title>Success (([\\w]+=[\\w\\d/\\-\\.\\~]+(&amp;)*)+)</title>");
 		responseMatcher = responsePattern.matcher(response);
 		if (responseMatcher.find()) {

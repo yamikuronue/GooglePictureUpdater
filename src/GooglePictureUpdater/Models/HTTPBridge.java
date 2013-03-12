@@ -14,6 +14,7 @@ public class HTTPBridge {
 			URL url = new URL(destination);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 	        connection.setDoOutput(true);
+	        connection.connect();
 
 	        
 	        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -25,10 +26,16 @@ public class HTTPBridge {
 	        	}
 	        	return response.toString();
 	        } else {
+	        	System.out.println("Server returned " + connection.getResponseCode());
+	        	BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+	        	while (reader.ready()) {
+	        		System.out.println(reader.readLine());
+	        	}
 	        	throw new Exception("Server replied with " + connection.getResponseCode());
 	        }
 	        
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new Exception("IO error");
 		}
 	}

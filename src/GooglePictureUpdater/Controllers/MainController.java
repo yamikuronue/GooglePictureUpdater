@@ -2,12 +2,14 @@ package GooglePictureUpdater.Controllers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import GooglePictureUpdater.Models.facebookContacts;
 import GooglePictureUpdater.Models.facebookFetcher;
 import GooglePictureUpdater.Models.googleContacts;
 import GooglePictureUpdater.Models.googleFetcher;
@@ -15,7 +17,7 @@ import GooglePictureUpdater.Views.MainView;
 
 public class MainController implements ActionListener, ListSelectionListener, Observer {
 	MainView view;
-	facebookFetcher fbFetcher;
+	facebookContacts fbFetcher;
 	googleContacts gFetcher;
 
 
@@ -24,6 +26,7 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		String command = arg0.getActionCommand();
+		Object source = arg0.getSource();
 		
 		if (command.startsWith("Login")) {
 			if (command.contains("Google")) {
@@ -32,33 +35,45 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 				gFetcher.requestAuthentication();
 				
 				//This continues when gFetcher notifies us,
-				//the observer, that it has changed.
+				//the observer, that it has authenticated.
 				
 			} else {
 				//contact facebook model and log in
 				if (fbFetcher == null)  return;
 				fbFetcher.requestAuthentication();
 				
-				//then update view
-				view.updateFacebookContacts(new String[] { "Logged in!"});
+				//This continues when fbFetcher notifies us,
+				//the observer, that it has authenticated.
 			}
 		}
 		
 		if (command.startsWith("Select")) {
 			if (command.contains("Google")) {
-				//as Google model to fetch pic
+				//get contact selection
+				String contact = view.getGoogleSelection();
+				if (contact == null) {
+					//this happens when the combobox contents change.
+					//just ignore it
+					return;
+				}
+				
+				//ask Google model to fetch pic
 				
 				//update view with pic
 				
 				
 				//tell Facebook model to find results
+				String[] matches = fbFetcher.findMatches(contact);
 				
 				//pass results back to view
+				view.updateFacebookContacts(matches);
 			}
 			else {
 				//ask Facebook to fetch pic
+				URL location = fbFetcher.getImageURL(view.getFacebookSelection());
 				
 				//update View with pic
+				view.updateFacebookImage(location);
 			}
 		}
 		
@@ -76,10 +91,12 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {
 		// This is always the facebook selection update
-		
 		//ask Facebook to fetch pic
+		URL location = fbFetcher.getImageURL(view.getFacebookSelection());
 		
+		System.out.println(location);
 		//update View with pic
+		view.updateFacebookImage(location);
 		
 	}
 
@@ -89,6 +106,7 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 
 	public void setFbFetcher(facebookFetcher fbFetcher) {
 		this.fbFetcher = fbFetcher;
+		fbFetcher.addObserver(this);
 	}
 
 	public void setgFetcher(googleFetcher gFetcher) {
@@ -103,7 +121,18 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 			if (arg1.toString().contains("Authenticated")) {
 				//fetch contacts
 				String [] contacts = gFetcher.fetchContactList();
+				
+				//update view
 				view.updateGoogleContacts(contacts);
+			}
+		} else if (source == fbFetcher) {
+			//TODO: change strings to constants
+			if (arg1.toString().contains("Authenticated")) {
+				//fetch contacts
+				fbFetcher.fetchContacts();
+				
+				//update view
+				view.updateFacebookContacts(fbFetcher.findMatches(""));
 			}
 		}
 		

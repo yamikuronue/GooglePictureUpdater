@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -17,6 +18,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import GooglePictureUpdater.Controllers.MainController;
 
@@ -92,7 +95,6 @@ public class MainView extends JFrame {
 		
 		facebook_results = new JList(new String[] {"Please log in ", "to view Facebook contacts", "", "", ""});
 		facebook_results.setVisibleRowCount(5);
-		facebook_results.setBorder(BorderFactory.createLineBorder(Color.black));
 		facebook_results.setFixedCellHeight(15);
 		c = new GridBagConstraints();
 		c.insets = new Insets(10,10,10,10);
@@ -100,7 +102,10 @@ public class MainView extends JFrame {
 		c.ipady = 10;
 		c.gridx = 3;
 		c.gridy = 2;
-		this.add(facebook_results, c);
+		JScrollPane facebookScroller = new JScrollPane(facebook_results,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		facebookScroller.setBorder(BorderFactory.createLineBorder(Color.black));
+		facebookScroller.setVisible(true);
+		this.add(facebookScroller, c);
 		
 	    
 		google_image = new ImageIcon();
@@ -165,6 +170,12 @@ public class MainView extends JFrame {
 		facebook_imglabel.invalidate();
 	}
 	
+	public void updateFacebookImage(URL source) {
+		facebook_image = new ImageIcon(source);
+		facebook_imglabel.setIcon(facebook_image);
+		facebook_imglabel.invalidate();
+	}
+	
 	public void updateGoogleImage(Image newImage) {
 		google_image.setImage(newImage);
 		google_imglabel.invalidate();
@@ -180,11 +191,21 @@ public class MainView extends JFrame {
 	
 	public void updateFacebookContacts(String[] contacts) {
 		facebook_results.setListData(contacts);
+		facebook_results.setVisibleRowCount(5);
 		facebook_results.invalidate();
 	}
 	
-	public static void main(String[] args) {
-		MainView view = new MainView(new MainController());
+	public String getGoogleSelection() {
+		int index = google_contacts.getSelectedIndex();
+		if (index == -1) {
+			return null;
+		}
+		
+		return google_contacts.getItemAt(index).toString();
+	}
+	
+	public String getFacebookSelection() {
+		return (String) facebook_results.getSelectedValue();
 	}
 
 }

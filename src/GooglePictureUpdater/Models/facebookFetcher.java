@@ -5,12 +5,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Observable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import GooglePictureUpdater.Controllers.LoginController;
 
-public class facebookFetcher implements needsAuthentication {
+public class facebookFetcher extends Observable implements facebookContacts {
 
 	private String authenticationCode;
 	private String accessToken;
@@ -21,6 +26,8 @@ public class facebookFetcher implements needsAuthentication {
 											//TODO: Make it more, um, unique.
 	private final String redirectURL = "https://www.facebook.com/connect/login_success.html"; //As documented at  https://developers.facebook.com/docs/howtos/login/login-for-desktop/
 	private final String accessTokenURL = "https://graph.facebook.com/oauth/access_token";
+	
+	private HashMap<String,String> contacts = null;
 	
 	public facebookFetcher() {
 		File secretFile = new File("C:\\FacebookSecrets.txt"); //You'll want to replace this with your own app keys
@@ -53,6 +60,7 @@ public class facebookFetcher implements needsAuthentication {
 	
 	@Override
 	public void authenticate(HashMap<String, String> credentials) {
+
 		if (credentials.containsKey("code")) {
 			authenticationCode = credentials.get("code");
 			//Now ask for the token
@@ -61,6 +69,8 @@ public class facebookFetcher implements needsAuthentication {
 		
 		if (credentials.containsKey("access_token")) {
 			accessToken = credentials.get("access_token");
+			setChanged();
+			notifyObservers("Authenticated");
 		}
 		
 	}
@@ -146,6 +156,95 @@ public class facebookFetcher implements needsAuthentication {
 	@Override
 	public boolean isAuthenticated() {
 		return accessToken != null;
+	}
+
+	
+	@Override
+	public void fetchContacts() {
+		contacts = new HashMap<String,String>();
+		
+		// Make graphAPI request
+		String destination = "https://graph.facebook.com/me/friends?access_token=" + accessToken;
+		
+		try {
+			String response = HTTPBridge.sendGETRequest(destination);
+			
+			//it's our old friend JSON!
+			//What a nice surprise.
+			Pattern jsonPattern = Pattern.compile("\"\\w+\":\"([\\w\\s-.]+)\",\"\\w+\":\"?([\\w\\s]+)\"?");
+			Matcher jsonMatcher = jsonPattern.matcher(response.toString());
+			
+			while (jsonMatcher.find()) {
+				String name = jsonMatcher.group(1);
+				String id = jsonMatcher.group(2);
+				
+				contacts.put(name, id);
+			}
+			
+		} catch (Exception e) {
+			//TODO: better error handling
+			e.printStackTrace();
+			return;
+		}
+		
+	}
+
+
+	@Override
+	public String[] findMatches(String name) {
+		
+		if (!isAuthenticated()) {
+			return new String[] {"Please log in", "to view Facebook contents"};
+		}
+		
+		if(name.isEmpty()) {
+			return (String[]) contacts.keySet().toArray(new String[] {});
+		}
+		
+		ArrayList<String> results = new ArrayList<String>();
+		//Start with exact matches
+		for(String contact : contacts.keySet()) {
+			if (contact.equalsIgnoreCase(name)) {
+				results.add(contact);
+			}
+		}
+		
+		
+		if (results.isEmpty()) {
+			//try partial match
+			for(String contact : contacts.keySet()) {
+				if (contact.toLowerCase().contains(name.toLowerCase())) {
+					results.add(contact);
+				}
+			}
+		}
+		
+		if (results.isEmpty()) {
+			//try longshots
+			String prefix = name.substring(0,3);
+			for(String contact : contacts.keySet()) {
+				if (contact.startsWith(prefix)) {
+					results.add(contact);
+				}
+			}
+		}
+		
+		return (String[]) results.toArray(new String[] {});
+	}
+
+	
+	@Override
+	public URL getImageURL(String name) {
+		if (contacts.containsKey(name)) {
+			try {
+				return new URL("https://graph.facebook.com/" + contacts.get(name) + "/picture");
+			} catch (MalformedURLException e) {
+				return this.getClass().getResource("/img/nopic.jpg"); //no image
+			}
+		}
+		else {
+			return this.getClass().getResource("/img/nopic.jpg"); //no image
+		}
 	}
 
 

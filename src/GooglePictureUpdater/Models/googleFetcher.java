@@ -225,7 +225,6 @@ public class googleFetcher extends Observable implements googleContacts {
 				}
 				
 				if (id != null) {
-					System.out.println("found contact: " + name);
 					contacts.put(name, id);
 				}
 			}
