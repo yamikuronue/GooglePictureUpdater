@@ -1,15 +1,22 @@
 package GooglePictureUpdater.Models;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 /**
  * Utility methods for sending http requests, since that's the backbone of this app.
@@ -161,4 +168,60 @@ public class HTTPBridge {
 			throw new ServerRejectionException(connection.getResponseCode(), connection.getResponseMessage(), response.toString());
 		}
 	}
+
+
+	/**
+	 * Sends a PUT request uploading an image to a server.
+	 * Ideally there'd be an override of this method without the final param, and overrides of the others
+	 * with the last param, but YAGNI.
+	 * @param destination The URL to send the message to
+	 * @param image The image to put. Should be castable to RenderedImage
+	 * @param headerValues Key-value pairs for special header values. This is because Google demands them.
+	 * @return True if it succeeded, false if there was an error.
+	 * @throws IOException If there was an error reading the image or sending the message
+	 */
+	public static boolean putImage(String destination, Image image, HashMap<String,String> headerValues) throws IOException {
+		try {
+			URL url = new URL(destination);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	        connection.setDoOutput(true);
+	
+	        connection.setRequestMethod("PUT");
+	        
+	        if (headerValues != null) {
+		        for (String headerKey : headerValues.keySet()) {
+		        	connection.setRequestProperty(headerKey, headerValues.get(headerKey));
+		        }
+	        }
+	
+	       OutputStream out = connection.getOutputStream();
+	       
+	       ImageIO.write((RenderedImage) image, "png", out);
+	       out.close();
+
+	       if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+	    	   connection.disconnect();
+	    	   return true;
+	       }
+
+	       BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+	       StringBuilder response = new StringBuilder();
+	       while (reader.ready()) {
+	    	   response.append(reader.readLine());
+	       }
+	       System.err.println(connection.getResponseCode() + " " + connection.getResponseMessage());
+	       System.err.println(response);
+	       
+	       connection.disconnect();
+	       
+	       //TODO: log error
+	       return false;
+	       
+		} catch (IOException e) {
+			e.printStackTrace();
+			//TODO: Log this exception. 
+			throw e;
+		}
+	}
+	
 }

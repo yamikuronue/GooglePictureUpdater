@@ -3,10 +3,12 @@ package GooglePictureUpdater.Controllers;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.imageio.ImageIO;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -80,12 +82,29 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 		
 		if (command.startsWith("Update")) {
 			//ask Facebook for pic
+			URL location = fbFetcher.getImageURL(view.getFacebookSelection());
+			
+			//Get name
+			String contact = view.getGoogleSelection();
 			
 			//pass to Google
+			boolean Success = gFetcher.updateContactImage(contact, location);
 			
 			//view reports success/failure
+			view.reportActionCompletion(Success);
 			
+
 			//refresh view
+			//TODO: This has timing issues. The below code won't work, so for now, fake it:
+			//Image newImage = gFetcher.getContactImage(contact);
+			Image newImage = null;
+			try {
+				newImage = ImageIO.read(fbFetcher.getImageURL(contact));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			view.updateGoogleImage(newImage);
 		}
 	}
 
@@ -95,7 +114,6 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 		//ask Facebook to fetch pic
 		URL location = fbFetcher.getImageURL(view.getFacebookSelection());
 		
-		System.out.println(location);
 		//update View with pic
 		view.updateFacebookImage(location);
 		

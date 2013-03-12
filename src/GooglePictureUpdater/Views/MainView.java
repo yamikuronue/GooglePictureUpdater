@@ -18,6 +18,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
@@ -169,6 +170,7 @@ public class MainView extends JFrame {
 		update.addActionListener(controller);
 	}
 	
+	
 	/**
 	 * Update the Facebook contact image displayed.
 	 * @param newImage The new image to display
@@ -188,6 +190,7 @@ public class MainView extends JFrame {
 		facebook_imglabel.invalidate();
 	}
 	
+	//TODO: This keeps, erm, dying partway through? Must investigate.
 	/**
 	 * Update the Google contact image displayed.
 	 * @param newImage The new image to display
@@ -240,4 +243,15 @@ public class MainView extends JFrame {
 		return (String) facebook_results.getSelectedValue();
 	}
 
+	public void reportActionCompletion(boolean successful) {
+		if (successful) {
+			JOptionPane.showMessageDialog(this, 
+					"Update successful!");			
+		} else {
+			JOptionPane.showMessageDialog(this,
+				    "We could not update your contact at this time.",
+				    "Error",
+				    JOptionPane.ERROR_MESSAGE);
+		}
+	}
 }

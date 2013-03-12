@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -272,7 +273,6 @@ public class googleFetcher extends Observable implements googleContacts {
 		}
 		
 		String destination = "https://www.google.com/m8/feeds/photos/media/default/"+ contactID + "?access_token=" + accessToken;
-		System.out.println(destination);
 		Image image;
 		try {
 			image = HTTPBridge.getImage(destination);
@@ -293,7 +293,39 @@ public class googleFetcher extends Observable implements googleContacts {
 		return image;
 	}
 
-
+	@Override
+	public boolean updateContactImage(String name, URL imageURL) {
+		try {
+			//First, we have to fetch the image.
+			Image newImage = HTTPBridge.getImage(imageURL.toString());
+			
+			//Now, we update
+			String contactID = contacts.get(name);
+			if (contactID == null) {
+				System.err.println("null contact");
+				//TODO: log error
+				return false;
+			}
+			
+			String destination = "https://www.google.com/m8/feeds/photos/media/default/"+ contactID + "?access_token=" + accessToken;
+			HashMap<String,String> requiredHeaders = new HashMap<String,String>();
+			requiredHeaders.put("If-match", "*");
+			requiredHeaders.put("Content-Type", "image/*");
+			
+			return HTTPBridge.putImage(destination, newImage, requiredHeaders);
+			
+		} catch (ServerRejectionException e) {
+			// TODO Log error
+			System.err.println("Server rejection: " + e.getServerResponse());
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			// TODO Log error
+			System.err.println("IO error: " + e.getMessage());
+			e.printStackTrace();
+			return false;
+		}
+	}
 	
 
 	
