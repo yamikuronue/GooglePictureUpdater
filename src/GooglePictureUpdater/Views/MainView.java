@@ -190,7 +190,7 @@ public class MainView extends JFrame {
 		facebook_imglabel.invalidate();
 	}
 	
-	//TODO: This keeps, erm, dying partway through? Must investigate.
+	//FIXME: This keeps, erm, dying partway through? Must investigate.
 	/**
 	 * Update the Google contact image displayed.
 	 * @param newImage The new image to display

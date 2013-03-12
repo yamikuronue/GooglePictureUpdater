@@ -95,7 +95,7 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 			
 
 			//refresh view
-			//TODO: This has timing issues. The below code won't work, so for now, fake it:
+			//XXX: This has timing issues. The below code won't work, so for now, fake it:
 			//Image newImage = gFetcher.getContactImage(contact);
 			Image newImage = null;
 			try {

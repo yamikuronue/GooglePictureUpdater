@@ -78,7 +78,7 @@ public class googleFetcher extends Observable implements googleContacts {
 		try {
 			defaultImage = ImageIO.read(this.getClass().getResource("/img/nopic.jpg"));
 		} catch (IOException ex) {
-			// TODO Handle this better
+			// XXX: Handle this error better
 			ex.printStackTrace();
 			defaultImage = null;
 		}
@@ -107,6 +107,7 @@ public class googleFetcher extends Observable implements googleContacts {
 		if (accessToken != null) {
 			accessToken = null;
 			//TODO: use refresh token
+			//
 		}
 		
 		controller.requestAuthentication();
@@ -226,7 +227,7 @@ public class googleFetcher extends Observable implements googleContacts {
 					}
 					if (elements.item(j).getNodeName().equalsIgnoreCase("title")) {
 						//Sometimes contacts have no name.
-						//TODO: decide if I want to just exclude them.
+						//TODO: decide if I want to just exclude contacts with no name, or put email, or what.
 						if ( elements.item(j).getTextContent().isEmpty()) {
 							name = "(untitled)";
 						} else {
@@ -242,8 +243,7 @@ public class googleFetcher extends Observable implements googleContacts {
 			}
 			
 			
-			//TODO: Contacts only returns 25 results at a time,
-			//so there needs to be a loop.
+			//FIXME: Contacts only returns 25 results at a time, so there needs to be a loop.
 			//However, this is only a demo app.
 			String[] ret = (String[]) contacts.keySet().toArray(new String[] {});
 			Arrays.sort(ret);
@@ -258,7 +258,7 @@ public class googleFetcher extends Observable implements googleContacts {
 				requestAuthentication();
 			}
 			
-			//TODO: figure out a better way to report errors back
+			//XXX: figure out a better way to report errors back
 			return new String[] {"ERROR: " + e.getMessage()};
 		}
 	}
@@ -279,13 +279,13 @@ public class googleFetcher extends Observable implements googleContacts {
 		} catch (ServerRejectionException e) {
 			if (e.getServerResponseCode() != 404) {
 				//404's are perfectly normal, just return the no-image image
-				// TODO Log error
+				// TODO: Log error
 				e.printStackTrace();
 			}
 
 			return defaultImage;
 		} catch (IOException e) {
-			// TODO Log error
+			// TODO: Log error
 			e.printStackTrace();
 			return defaultImage;
 		}

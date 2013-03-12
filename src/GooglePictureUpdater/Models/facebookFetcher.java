@@ -23,7 +23,7 @@ public class facebookFetcher extends Observable implements facebookContacts {
 	private String appId = ""; //Facebook API credentials moved to a text file
 	private String appSecret = ""; //for security reasons.
 	private final String state = "f345ddsfe"; //This is passed to facebook and defined as an "arbitrary but unique string"
-											//TODO: Make it more, um, unique.
+											//FIXME: Make the unique string more, um, unique.
 	private final String redirectURL = "https://www.facebook.com/connect/login_success.html"; //As documented at  https://developers.facebook.com/docs/howtos/login/login-for-desktop/
 	private final String accessTokenURL = "https://graph.facebook.com/oauth/access_token";
 	
@@ -182,7 +182,7 @@ public class facebookFetcher extends Observable implements facebookContacts {
 			}
 			
 		} catch (Exception e) {
-			//TODO: better error handling
+			//XXX: better error handling
 			e.printStackTrace();
 			return;
 		}

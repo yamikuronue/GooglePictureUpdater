@@ -138,7 +138,6 @@ public class HTTPBridge {
 			InputStream is = connection.getInputStream();
 			
 			//get content
-			//TODO: Why is this only returning half an image?
 			Image image = ImageIO.read(is);
 			
 			if (image == null) {
