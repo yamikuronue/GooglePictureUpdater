@@ -1,5 +1,6 @@
 package GooglePictureUpdater.Models;
 
+import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Observable;
 
+import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBContext;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -42,6 +44,7 @@ public class googleFetcher extends Observable implements googleContacts {
 	private final String postURL = "https://accounts.google.com/o/oauth2/token";
 	
 	private HashMap<String, String> contacts = null;
+	private Image defaultImage;
 	
 	public googleFetcher() {
 		File secretFile = new File("C:\\GoogleSecrets.txt"); //You'll want to replace this with your own app key
@@ -70,6 +73,14 @@ public class googleFetcher extends Observable implements googleContacts {
 			e.printStackTrace();
 		}
 		
+		
+		try {
+			defaultImage = ImageIO.read(this.getClass().getResource("/img/nopic.jpg"));
+		} catch (IOException ex) {
+			// TODO Handle this better
+			ex.printStackTrace();
+			defaultImage = null;
+		}
 	}
 	
 	@Override
@@ -200,7 +211,6 @@ public class googleFetcher extends Observable implements googleContacts {
 			NodeList contactList = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
 			int numContacts =  contactList.getLength();
-			System.out.println("found " + numContacts + " contacts");
 			for (int i = 0; i < numContacts; i++) {
 				Node node = contactList.item(i);
 				
@@ -211,6 +221,7 @@ public class googleFetcher extends Observable implements googleContacts {
 				for (int j = 0; j < numElements; j++) {
 					if (elements.item(j).getNodeName().equalsIgnoreCase("id")) {
 						id = elements.item(j).getTextContent();
+						id = id.substring(id.lastIndexOf("/")+1);
 					}
 					if (elements.item(j).getNodeName().equalsIgnoreCase("title")) {
 						//Sometimes contacts have no name.
@@ -251,8 +262,39 @@ public class googleFetcher extends Observable implements googleContacts {
 		}
 	}
 
+	
+	@Override
+	public Image getContactImage(String name) {
+		
+		String contactID = contacts.get(name);
+		if (contactID == null) {
+			return defaultImage;
+		}
+		
+		String destination = "https://www.google.com/m8/feeds/photos/media/default/"+ contactID + "?access_token=" + accessToken;
+		System.out.println(destination);
+		Image image;
+		try {
+			image = HTTPBridge.getImage(destination);
+		} catch (ServerRejectionException e) {
+			if (e.getServerResponseCode() != 404) {
+				//404's are perfectly normal, just return the no-image image
+				// TODO Log error
+				e.printStackTrace();
+			}
+
+			return defaultImage;
+		} catch (IOException e) {
+			// TODO Log error
+			e.printStackTrace();
+			return defaultImage;
+		}
+		
+		return image;
+	}
 
 
+	
 
 	
 

@@ -10,6 +10,10 @@ public class GooglePictureUpdater {
 	
 	
 
+	/**
+	 * Start the program.
+	 * @param args unused
+	 */
 	public static void main(String[] args) {
 		
 		//Needed for web browser:

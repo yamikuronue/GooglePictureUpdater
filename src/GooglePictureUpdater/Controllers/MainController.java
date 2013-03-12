@@ -1,5 +1,6 @@
 package GooglePictureUpdater.Controllers;
 
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
@@ -19,7 +20,6 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 	MainView view;
 	facebookContacts fbFetcher;
 	googleContacts gFetcher;
-
 
 	
 
@@ -58,9 +58,10 @@ public class MainController implements ActionListener, ListSelectionListener, Ob
 				}
 				
 				//ask Google model to fetch pic
+				Image image = gFetcher.getContactImage(contact);
 				
 				//update view with pic
-				
+				view.updateGoogleImage(image);
 				
 				//tell Facebook model to find results
 				String[] matches = fbFetcher.findMatches(contact);

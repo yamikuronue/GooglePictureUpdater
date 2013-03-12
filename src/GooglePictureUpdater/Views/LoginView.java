@@ -8,6 +8,13 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
 import GooglePictureUpdater.Controllers.LoginController;
 
+/**
+ * A view for HTTP authentication. Because the dominant paradigm is to open a browser window
+ * and point the user at an authentication URL, which is then redirected to a success URL, 
+ * this involves an embedded browser and event handling for redirects.
+ * @author Bayley
+ *
+ */
 @SuppressWarnings("serial")
 public class LoginView extends JFrame {
 
@@ -16,6 +23,11 @@ public class LoginView extends JFrame {
 	final LoginController controller;
 	JWebBrowser browser;
 	
+	/**
+	 * Construct and show the login view
+	 * @param loginUrl The URL to point the browser at for authentication
+	 * @param controller The controller to notify when the URL changes
+	 */
 	public LoginView(String loginUrl, LoginController controller) {
 		url = loginUrl;		
 		

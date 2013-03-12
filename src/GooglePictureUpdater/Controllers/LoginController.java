@@ -27,24 +27,55 @@ import GooglePictureUpdater.Models.needsAuthentication;
 import GooglePictureUpdater.Models.needsPOSTAuthentication;
 import GooglePictureUpdater.Views.LoginView;
 
+/**
+ * A generic controller for login logic.
+ * Google and Facebook both use the same flow, 
+ * so this helps genericize a little.
+ * 
+ * @author Bayley
+ *
+ */
 public class LoginController implements WebBrowserListener {
 
-	/* The URL to listen for. This prevents misfiring on, say, "your account was locked" pages. */
+	/** The URL to listen for. This prevents misfiring on, say, "your account was locked" pages. */
 	private String expectedURL;
+	/** The model requesting authentication */
 	private needsAuthentication model;
+	/**A view to use */
 	private LoginView view;
-	
-	//This is to flag the server to switch to using http POST requests instead of the more usual GET requests
+	/**This is to flag the server to switch to using http POST requests instead of the more usual GET requests */
 	private boolean usePost = false;
 
+	/**
+	 * Sets the model to notify
+	 * @param model The model requesting authentication
+	 */
 	public void setModel(needsAuthentication model) {
 		this.model = model;
 	}
 
+	/**
+	 * Sets the controller into POST mode vs GET mode
+	 * @param usePost True for POST, false for GET
+	 */
 	public void setUsePost(boolean usePost) {
 		this.usePost = usePost;
 	}
 	
+	/**
+	 * Sets the URL of the final authentication success/failure page.
+	 * Because Facebook has "login notifications" and Google has phone-based authentication screens,
+	 * and both have "invalid username/password" screens,
+	 * this allows us to skip over all the irrelevant crap and wait for the final page.
+	 * @param expectedURL The URL to listen for
+	 */
+	public void setExpectedURL(String expectedURL) {
+		this.expectedURL = expectedURL;
+	}
+	
+	/**
+	 * Request authentication. This will open a view window if called while in GET mode.
+	 */
 	public void requestAuthentication() {
 		if (usePost) {
 			sendPOST();
@@ -57,6 +88,9 @@ public class LoginController implements WebBrowserListener {
 		}
 	}
 	
+	/**
+	 * Send a POST request, now delegated through HTTPBridge
+	 */
 	private void sendPOST() {
 		if (!(model instanceof needsPOSTAuthentication)) {
 			return; //this is an invalid path
@@ -93,9 +127,7 @@ public class LoginController implements WebBrowserListener {
         
 	}
 
-	public void setExpectedURL(String expectedURL) {
-		this.expectedURL = expectedURL;
-	}
+
 
 	@Override
 	public void locationChanged(WebBrowserNavigationEvent e) {
@@ -153,7 +185,7 @@ public class LoginController implements WebBrowserListener {
 
 
 
-	/* Boilerplate methods to implement listener */
+	/* Boilerplate methods to implement listener. We don't use any of these events. */
 
 	@Override
 	public void commandReceived(WebBrowserCommandEvent arg0) {

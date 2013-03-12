@@ -38,6 +38,10 @@ public class MainView extends JFrame {
 	
 	JButton update;
 	
+	/**
+	 * Constructs and shows the view.
+	 * @param controller The controller to notify when things change.
+	 */
 	public MainView(MainController controller) {
 		this.setLayout(new GridBagLayout());
 		
@@ -165,22 +169,38 @@ public class MainView extends JFrame {
 		update.addActionListener(controller);
 	}
 	
+	/**
+	 * Update the Facebook contact image displayed.
+	 * @param newImage The new image to display
+	 */
 	public void updateFacebookImage(Image newImage) {
 		facebook_image.setImage(newImage);
 		facebook_imglabel.invalidate();
 	}
 	
+	/**
+	 * Update the Facebook contact image displayed.
+	 * @param source A URL to an image resource to display
+	 */
 	public void updateFacebookImage(URL source) {
 		facebook_image = new ImageIcon(source);
 		facebook_imglabel.setIcon(facebook_image);
 		facebook_imglabel.invalidate();
 	}
 	
+	/**
+	 * Update the Google contact image displayed.
+	 * @param newImage The new image to display
+	 */
 	public void updateGoogleImage(Image newImage) {
 		google_image.setImage(newImage);
 		google_imglabel.invalidate();
 	}
 	
+	/**
+	 * Update the displayed list of contacts.
+	 * @param contacts A list of contact names to show.
+	 */
 	public void updateGoogleContacts(String[] contacts) {
 		google_contacts.removeAllItems();
 		for (String item : contacts) {
@@ -189,12 +209,20 @@ public class MainView extends JFrame {
 		google_contacts.invalidate();
 	}
 	
+	/**
+	 * Update the displayed list of contacts.
+	 * @param contacts A list of contact names to show.
+	 */
 	public void updateFacebookContacts(String[] contacts) {
 		facebook_results.setListData(contacts);
 		facebook_results.setVisibleRowCount(5);
 		facebook_results.invalidate();
 	}
 	
+	/**
+	 * Get the currently selected Google contact
+	 * @return the currently selected Google contact's name
+	 */
 	public String getGoogleSelection() {
 		int index = google_contacts.getSelectedIndex();
 		if (index == -1) {
@@ -204,6 +232,10 @@ public class MainView extends JFrame {
 		return google_contacts.getItemAt(index).toString();
 	}
 	
+	/**
+	 * Get the currently selected Facebook contact
+	 * @return the currently selected Facebook contact's name
+	 */
 	public String getFacebookSelection() {
 		return (String) facebook_results.getSelectedValue();
 	}
