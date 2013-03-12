@@ -16,4 +16,6 @@ public interface needsAuthentication {
 	public void setLoginController(LoginController controller);
 	
 	public String getAuthenticationURL();
+	
+	public boolean isAuthenticated();
 }

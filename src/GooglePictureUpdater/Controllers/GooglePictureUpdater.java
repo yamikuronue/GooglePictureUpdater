@@ -4,6 +4,7 @@ import chrriis.dj.nativeswing.NativeSwing;
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import GooglePictureUpdater.Models.facebookFetcher;
 import GooglePictureUpdater.Models.googleFetcher;
+import GooglePictureUpdater.Views.MainView;
 
 public class GooglePictureUpdater {
 	
@@ -15,13 +16,24 @@ public class GooglePictureUpdater {
 		NativeSwing.initialize();
 		NativeInterface.open();
 
+
+		//Inject dependencies:
+		LoginController fbLoginController = new LoginController();
+		facebookFetcher fbFetcher = new facebookFetcher();
+		fbLoginController.setModel(fbFetcher);
+		fbFetcher.setLoginController(fbLoginController);
 		
-		//facebookFetcher fetcher = new facebookFetcher();
-		googleFetcher fetcher = new googleFetcher();
-		LoginController controller = new LoginController();
-		controller.setModel(fetcher);
-		fetcher.setLoginController(controller);
-		fetcher.requestAuthentication();
+		LoginController gLoginController = new LoginController();
+		googleFetcher gFetcher = new googleFetcher();
+		gLoginController.setModel(gFetcher);
+		gFetcher.setLoginController(gLoginController);
+		
+		
+		MainController mController = new MainController();
+		mController.setFbFetcher(fbFetcher);
+		mController.setgFetcher(gFetcher);
+		MainView view = new MainView(mController);
+		mController.setView(view);
 		
 		NativeInterface.runEventPump();
 	}

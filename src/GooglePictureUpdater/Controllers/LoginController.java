@@ -22,6 +22,7 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 
+import GooglePictureUpdater.Models.HTTPBridge;
 import GooglePictureUpdater.Models.needsAuthentication;
 import GooglePictureUpdater.Models.needsPOSTAuthentication;
 import GooglePictureUpdater.Views.LoginView;
@@ -58,53 +59,37 @@ public class LoginController implements WebBrowserListener {
 	
 	private void sendPOST() {
 		if (!(model instanceof needsPOSTAuthentication)) {
-			System.out.println("Invalid request");
-			return; //this is invalid if that's true
+			return; //this is an invalid path
 		}
-			
-		System.out.println("Sending POST");
 
-        try {
-        	URL url = new URL(((needsPOSTAuthentication) model).getPOSTURL());
-        	
-        	System.out.println("TO: " + url.toString());
-        	
-        	HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
+		try {
+			String response = HTTPBridge.sendPOSTRequest(((needsPOSTAuthentication) model).getPOSTURL(), ((needsPOSTAuthentication) model).getPOSTBody());
 
-            // instead of a GET, we're going to send using method="POST"
-            connection.setRequestMethod("POST");
+			//for some reason, Google uses JSON in this particular reply. 
+			//so let's try to parse it as such.
 
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+			Pattern jsonPattern = Pattern.compile("\"(\\w+)\" : \"?([\\w\\d\\/\\-\\.]+)\"?");
+			Matcher jsonMatcher = jsonPattern.matcher(response.toString());
 
-            System.out.println("Message: " + ((needsPOSTAuthentication) model).getPOSTBody());
-            writer.write("message=" + URLEncoder.encode(((needsPOSTAuthentication) model).getPOSTBody()));
+			HashMap<String,String> credentials = new HashMap<String,String>();
+			ArrayList<String> importantparts = model.getRequiredCredentials();
 
-            // Closes this output stream and releases any system resources associated with this stream. At this point, we've sent all the data. Only the outputStream is closed at this point, not the actual connection
-            writer.close();
+			while (jsonMatcher.find()) {
+				String key = jsonMatcher.group(1);
+				String value = jsonMatcher.group(2);
+				
+				if (importantparts.contains(key)) {
+					credentials.put(key, value);
+				}
+			}
 
-            System.out.println("Reply: " + connection.getResponseCode() + " " + connection.getResponseMessage());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-            	System.out.println(line);
-            }
-            System.out.println();
-            // if there is a response code AND that response code is 200 OK, do stuff in the first if block
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-               //for some reason, Google uses JSON in this particular reply. 
-            	//so let's try to parse it as such.
-            	
-            	Pattern jsonPattern = Pattern.compile("\"(\\w+)\":\"?([\\w\\d\\/-]+)\"?");
-            	Matcher jsonMatcher = jsonPattern.matcher(connection.getResponseMessage());
-            }
-        } catch (MalformedURLException e) {
-        	e.printStackTrace();
-        } catch (IOException e) {
-        	e.printStackTrace();
-        }
-        
-        
+			model.authenticate(credentials);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
         
 	}
 

@@ -143,6 +143,11 @@ public class facebookFetcher implements needsAuthentication {
 		return urlBuilder.toString();
 	}
 
+	@Override
+	public boolean isAuthenticated() {
+		return accessToken != null;
+	}
+
 
 
 }
