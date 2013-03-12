@@ -17,6 +17,9 @@ import GooglePictureUpdater.Controllers.LoginController;
 
 public class facebookFetcher extends Observable implements facebookContacts {
 
+
+
+
 	private String authenticationCode;
 	private String accessToken;
 	private LoginController controller;
@@ -26,6 +29,8 @@ public class facebookFetcher extends Observable implements facebookContacts {
 											//FIXME: Make the unique string more, um, unique.
 	private final String redirectURL = "https://www.facebook.com/connect/login_success.html"; //As documented at  https://developers.facebook.com/docs/howtos/login/login-for-desktop/
 	private final String accessTokenURL = "https://graph.facebook.com/oauth/access_token";
+	
+	private HTTPBridge internet;
 	
 	private HashMap<String,String> contacts = null;
 	
@@ -56,6 +61,10 @@ public class facebookFetcher extends Observable implements facebookContacts {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void setHTTPHandler(HTTPBridge handler) {
+		this.internet = handler;
 	}
 	
 	@Override
@@ -167,7 +176,7 @@ public class facebookFetcher extends Observable implements facebookContacts {
 		String destination = "https://graph.facebook.com/me/friends?access_token=" + accessToken;
 		
 		try {
-			String response = HTTPBridge.sendGETRequest(destination);
+			String response = internet.sendGETRequest(destination);
 			
 			//it's our old friend JSON!
 			//What a nice surprise.

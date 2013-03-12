@@ -47,6 +47,8 @@ public class googleFetcher extends Observable implements googleContacts {
 	private HashMap<String, String> contacts = null;
 	private Image defaultImage;
 	
+	private HTTPBridge internet;
+	
 	public googleFetcher() {
 		File secretFile = new File("C:\\GoogleSecrets.txt"); //You'll want to replace this with your own app key
 		FileReader freader = null;
@@ -82,6 +84,10 @@ public class googleFetcher extends Observable implements googleContacts {
 			ex.printStackTrace();
 			defaultImage = null;
 		}
+	}
+	
+	public void setHTTPHandler(HTTPBridge handler) {
+		this.internet = handler;
 	}
 	
 	@Override
@@ -195,7 +201,7 @@ public class googleFetcher extends Observable implements googleContacts {
 		//Note: The special userEmail value default can be used to refer to the authenticated user.
 		
 		try {
-			String response = HTTPBridge.sendGETRequest(destination);
+			String response = internet.sendGETRequest(destination);
 			
 			//now parse the atom feed
 			//there's about eighty ways to do this
@@ -275,7 +281,7 @@ public class googleFetcher extends Observable implements googleContacts {
 		String destination = "https://www.google.com/m8/feeds/photos/media/default/"+ contactID + "?access_token=" + accessToken;
 		Image image;
 		try {
-			image = HTTPBridge.getImage(destination);
+			image = internet.getImage(destination);
 		} catch (ServerRejectionException e) {
 			if (e.getServerResponseCode() != 404) {
 				//404's are perfectly normal, just return the no-image image
@@ -297,7 +303,7 @@ public class googleFetcher extends Observable implements googleContacts {
 	public boolean updateContactImage(String name, URL imageURL) {
 		try {
 			//First, we have to fetch the image.
-			Image newImage = HTTPBridge.getImage(imageURL.toString());
+			Image newImage = internet.getImage(imageURL.toString());
 			
 			//Now, we update
 			String contactID = contacts.get(name);
@@ -312,7 +318,7 @@ public class googleFetcher extends Observable implements googleContacts {
 			requiredHeaders.put("If-match", "*");
 			requiredHeaders.put("Content-Type", "image/*");
 			
-			return HTTPBridge.putImage(destination, newImage, requiredHeaders);
+			return internet.putImage(destination, newImage, requiredHeaders);
 			
 		} catch (ServerRejectionException e) {
 			// TODO Log error

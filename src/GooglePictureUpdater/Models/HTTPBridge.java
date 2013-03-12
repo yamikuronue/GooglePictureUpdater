@@ -32,7 +32,7 @@ public class HTTPBridge {
 	 * @throws ServerRejectionException if the server sends any reply but 200-OK
 	 * @throws IOException if there is any issue communicating with the host.
 	 */
-	public static String sendGETRequest(String destination) throws ServerRejectionException, IOException {
+	public String sendGETRequest(String destination) throws ServerRejectionException, IOException {
 		try {
 			URL url = new URL(destination);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -76,7 +76,7 @@ public class HTTPBridge {
 	 * @throws ServerRejectionException if the server sends any reply but 200-OK
 	 * @throws IOException if there is any issue communicating with the host.
 	 */
-	public static String sendPOSTRequest(String destination, String message) throws ServerRejectionException, Exception {
+	public String sendPOSTRequest(String destination, String message) throws ServerRejectionException, Exception {
 		try {
 			URL url = new URL(destination);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -128,7 +128,7 @@ public class HTTPBridge {
 	 * @throws ServerRejectionException if the server sends any reply but 200-OK
 	 * @throws IOException if there is any issue communicating with the host.
 	 */
-	public static Image getImage(String destination) throws ServerRejectionException, IOException {
+	public Image getImage(String destination) throws ServerRejectionException, IOException {
 		URL url = new URL(destination);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
@@ -179,7 +179,7 @@ public class HTTPBridge {
 	 * @return True if it succeeded, false if there was an error.
 	 * @throws IOException If there was an error reading the image or sending the message
 	 */
-	public static boolean putImage(String destination, Image image, HashMap<String,String> headerValues) throws IOException {
+	public boolean putImage(String destination, Image image, HashMap<String,String> headerValues) throws IOException {
 		try {
 			URL url = new URL(destination);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();

@@ -45,6 +45,8 @@ public class LoginController implements WebBrowserListener {
 	private LoginView view;
 	/**This is to flag the server to switch to using http POST requests instead of the more usual GET requests */
 	private boolean usePost = false;
+	
+	private HTTPBridge httpHandler;
 
 	/**
 	 * Sets the model to notify
@@ -73,6 +75,11 @@ public class LoginController implements WebBrowserListener {
 		this.expectedURL = expectedURL;
 	}
 	
+
+	public void setHttpHandler(HTTPBridge httpHandler) {
+		this.httpHandler = httpHandler;
+	}
+	
 	/**
 	 * Request authentication. This will open a view window if called while in GET mode.
 	 */
@@ -97,7 +104,7 @@ public class LoginController implements WebBrowserListener {
 		}
 
 		try {
-			String response = HTTPBridge.sendPOSTRequest(((needsPOSTAuthentication) model).getPOSTURL(), ((needsPOSTAuthentication) model).getPOSTBody());
+			String response = httpHandler.sendPOSTRequest(((needsPOSTAuthentication) model).getPOSTURL(), ((needsPOSTAuthentication) model).getPOSTBody());
 
 			//for some reason, Google uses JSON in this particular reply. 
 			//so let's try to parse it as such.
@@ -244,6 +251,7 @@ public class LoginController implements WebBrowserListener {
 		// We don't care about this event
 		return;
 	}
+
 
 
 
